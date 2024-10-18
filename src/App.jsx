@@ -15,7 +15,6 @@ function App() {
   const [targetLanguage, setTargetLanguage] = useState("en-us");
   const [translatedText, setTranslatedText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
 
   useEffect(() => {
     if (inputText.trim() === '') {
@@ -25,15 +24,13 @@ function App() {
 
     const fetchTranslation = async () => {
       setIsLoading(true);
-      setError('');
 
       try {
         const encodedText = encodeURIComponent(inputText);
         const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodedText}&langpair=${sourceLanguage}|${targetLanguage}`);
         const data = await response.json();
         setTranslatedText(data.responseData.translatedText);
-      } catch (err) {
-        setError('Erro ao traduzir o texto');
+      } catch {
       } finally {
         setIsLoading(false);
       }
@@ -42,9 +39,9 @@ function App() {
     fetchTranslation();
   }, [inputText, sourceLanguage, targetLanguage]);
 
-  // Função para inverter as linguagens e o texto
+
   const invertLanguages = () => {
-    setInputText(translatedText); // Define o texto de entrada como o texto traduzido
+    setInputText(translatedText);
     setSourceLanguage(targetLanguage);
     setTargetLanguage(sourceLanguage);
   };
@@ -72,7 +69,7 @@ function App() {
 
             <button 
               onClick={invertLanguages} 
-              className=" text-white px-3 py-1 rounded hover:bg-gray-200 transition"
+              className="text-white px-3 py-1 rounded hover:bg-gray-200 transition"
             >
               <svg
                 className="w-5 h-5 text-headerColor"
@@ -122,11 +119,6 @@ function App() {
             </div>
           </div>
 
-          {error && (
-            <div className="p-4 bg-red-100 border-t border-red-400 text-red-700">
-              {error}
-            </div>
-          )}
         </div>
       </main>
 
