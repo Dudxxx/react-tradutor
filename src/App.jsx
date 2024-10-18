@@ -1,4 +1,4 @@
-
+import React, { useState, useEffect } from 'react';
 
 function App() {
   const languages = [
@@ -10,8 +10,44 @@ function App() {
     { code: "pt-br", name: "Português" },
   ];
 
-  let isLoading = false
-  let error = ""
+  const [inputText, setInputText] = useState('');
+  const [sourceLanguage, setSourceLanguage] = useState("pt-br");
+  const [targetLanguage, setTargetLanguage] = useState("en-us");
+  const [translatedText, setTranslatedText] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (inputText.trim() === '') {
+      setTranslatedText('');
+      return;
+    }
+
+    const fetchTranslation = async () => {
+      setIsLoading(true);
+      setError('');
+
+      try {
+        const encodedText = encodeURIComponent(inputText);
+        const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodedText}&langpair=${sourceLanguage}|${targetLanguage}`);
+        const data = await response.json();
+        setTranslatedText(data.responseData.translatedText);
+      } catch (err) {
+        setError('Erro ao traduzir o texto');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchTranslation();
+  }, [inputText, sourceLanguage, targetLanguage]);
+
+  // Função para inverter as linguagens e o texto
+  const invertLanguages = () => {
+    setInputText(translatedText); // Define o texto de entrada como o texto traduzido
+    setSourceLanguage(targetLanguage);
+    setTargetLanguage(sourceLanguage);
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -26,13 +62,18 @@ function App() {
           <div className="flex items-center justify-between p-4 border-b border-gray-200">
             <select
               className="text-sm text-textColor bg-transparent border-none focus:outline-none cursor-pointer"
-              value="en-us"
+              value={sourceLanguage}
+              onChange={(e) => setSourceLanguage(e.target.value)}
             >
-              <option value="pt-br">Português</option>
-              <option value="en-us">Inglês</option>
+              {languages.map((lang) => (
+                <option key={lang.code} value={lang.code}>{lang.name}</option>
+              ))}
             </select>
 
-            <button className="p-2 rounded-full hover:bg-gray-100 outline-none">
+            <button 
+              onClick={invertLanguages} 
+              className=" text-white px-3 py-1 rounded hover:bg-gray-200 transition"
+            >
               <svg
                 className="w-5 h-5 text-headerColor"
                 fill="none"
@@ -51,10 +92,12 @@ function App() {
 
             <select
               className="text-sm text-textColor bg-transparent border-none focus:outline-none cursor-pointer"
-              value="pt-br"
+              value={targetLanguage}
+              onChange={(e) => setTargetLanguage(e.target.value)}
             >
-              <option value="pt-br">Português</option>
-              <option value="en-us">Inglês</option>
+              {languages.map((lang) => (
+                <option key={lang.code} value={lang.code}>{lang.name}</option>
+              ))}
             </select>
           </div>
 
@@ -62,7 +105,9 @@ function App() {
             <div className="p-4">
               <textarea
                 className="w-full h-40 text-lg text-textColor bg-transparent resize-none border-none outline-none"
-                placeholder="Digite seu texto..."                
+                placeholder="Digite seu texto..."
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
               ></textarea>
             </div>
 
@@ -72,7 +117,7 @@ function App() {
                   <div className="animate-spin rounded-full h-8 w-8 border-blue-500 border-t-2"></div>
                 </div>
               ) : (
-                <p className="text-lg text-textColor">Colocar aqui o texto traduzido</p>
+                <p className="text-lg text-textColor">{translatedText || "Colocar aqui o texto traduzido"}</p>
               )}
             </div>
           </div>
