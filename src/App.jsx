@@ -11,14 +11,14 @@ function App() {
   ];
 
   const [inputText, setInputText] = useState('');
-  const [sourceLanguage, setSourceLanguage] = useState("pt-br");
-  const [targetLanguage, setTargetLanguage] = useState("en-us");
-  const [translatedText, setTranslatedText] = useState('');
+  const [sourceLanguage, setSLinguagem] = useState("pt-br");
+  const [targetLanguage, setTLinguagem] = useState("en-us");
+  const [translatedText, setTexto] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (inputText.trim() === '') {
-      setTranslatedText('');
+      setTexto('');
       return;
     }
 
@@ -29,7 +29,7 @@ function App() {
         const encodedText = encodeURIComponent(inputText);
         const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodedText}&langpair=${sourceLanguage}|${targetLanguage}`);
         const data = await response.json();
-        setTranslatedText(data.responseData.translatedText);
+        setTexto(data.responseData.translatedText);
       } catch {
       } finally {
         setIsLoading(false);
@@ -42,8 +42,8 @@ function App() {
 
   const invertLanguages = () => {
     setInputText(translatedText);
-    setSourceLanguage(targetLanguage);
-    setTargetLanguage(sourceLanguage);
+    setSLinguagem(targetLanguage);
+    setTLinguagem(sourceLanguage);
   };
 
   return (
@@ -60,7 +60,7 @@ function App() {
             <select
               className="text-sm text-textColor bg-transparent border-none focus:outline-none cursor-pointer"
               value={sourceLanguage}
-              onChange={(e) => setSourceLanguage(e.target.value)}
+              onChange={(e) => setSLinguagem(e.target.value)}
             >
               {languages.map((lang) => (
                 <option key={lang.code} value={lang.code}>{lang.name}</option>
@@ -90,7 +90,7 @@ function App() {
             <select
               className="text-sm text-textColor bg-transparent border-none focus:outline-none cursor-pointer"
               value={targetLanguage}
-              onChange={(e) => setTargetLanguage(e.target.value)}
+              onChange={(e) => setTLinguagem(e.target.value)}
             >
               {languages.map((lang) => (
                 <option key={lang.code} value={lang.code}>{lang.name}</option>
